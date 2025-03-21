@@ -60,4 +60,4 @@ IDE-Board settings:
 
 ### Power consumption
 
-The *ESP32BleKeyboardBox* consumes about 220mW and the used INR 18650 35e battery can power the device for about 50 hours. 
+The *ESP32BleKeyboardBox* consumes about 220mW (68mA@3.3V) and the used INR18650-35e battery can power the device for about 50 hours. 
