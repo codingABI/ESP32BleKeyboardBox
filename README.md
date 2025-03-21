@@ -56,7 +56,7 @@ IDE-Board settings:
 ### Buzzer
 - Laser = Startup sound (as endless loop: Low battery => charge...)
 - Short beep = A device has connectd to the *ESP32BleKeyboardBox*
-- Short beep = A device has disconnectd to the *ESP32BleKeyboardBox*
+- Long beep = A device has disconnectd to the *ESP32BleKeyboardBox*
 
 ### Power consumption
 
