@@ -22,7 +22,8 @@ Libraries from Arduino Library Manager:
   - Copyright (c) 2020-2024 Armin Joachimsmeyer
 
 Libraries from GitHub:
-- [BleKeyboard](https://github.com/T-vK/ESP32-BLE-Keyboard) by T-vK, 0.3.0 (I use a modified BleKeyboard.cpp, see https://github.com/T-vK/ESP32-BLE-Keyboard/issues/312)
+- [BleKeyboard](https://github.com/T-vK/ESP32-BLE-Keyboard) (0.3.0, I use a modified BleKeyboard.cpp, see https://github.com/T-vK/ESP32-BLE-Keyboard/issues/312)
+  - by T-vK (Credits to chegewara, authors of the USB keyboard library, duke2421)
 
 ## Hardware
 - ESP-WROOM-32 NodeMCU DevKitV1
