@@ -2,7 +2,7 @@
 
 An ESP32 based, DIY, battery driven, wireless remote control to send key presses (for example "print screen", "volume up"...) to a Windows or Android device via BLE. The trigger for the sent key press can be a physical push button or a IR signal. 
 
-This device allows a disabled person to take a screenshot on an Android tablet.
+This device allows a disabled person to take a screenshot on an Android tablet by pressing the red button.
 
 ![Outer](assets/images/Outer.png)
 
@@ -26,11 +26,14 @@ Libraries from GitHub:
   - by T-vK (Credits to chegewara, authors of the USB keyboard library, duke2421)
 
 ## Hardware
-- ESP-WROOM-32 NodeMCU DevKitV1
+- ESP-WROOM-32 NodeMCU DevKitV1 30 pin
 - IR-Receiver VS1838B
 - 3.7V 3500mA Li-Ion battery with a TC4056 as loader and protection
 - Passive buzzer for simple audio signals
-- HT7333 voltage regulator
+- HT7333 voltage Regulator
+- WS2812B (3 LEDs in series, only the last one used currently)
+- One red momentary push button
+- Power on/off switch
 
 ## Used development environment
 Arduino IDE 1.8.19 (Without "real portable" support version 2.* makes no sense for me https://forum.arduino.cc/t/arduino-ide-2-0-portable/, https://github.com/arduino/arduino-ide/issues/122 ...)
