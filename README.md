@@ -47,6 +47,17 @@ IDE-Board settings:
 
 ![Schematic](assets/images/Schematic.png)
 
+### LED colors
+
+- Green = Powered on and waiting for a connecting device (Windows, Android ...)
+- Blue = A device is connected to the *ESP32BleKeyboardBox*
+- Red (or red blinking) = Low battery, please charge...
+
+### Buzzer
+- Laser = Startup sound (as endless loop: Low battery => charge...)
+- Short beep = A device has connectd to the *ESP32BleKeyboardBox*
+- Short beep = A device has disconnectd to the *ESP32BleKeyboardBox*
+
 ### Power consumption
 
 The *ESP32BleKeyboardBox* consumes about 220mW and the used INR 18650 35e battery can power the device for about 50 hours. 
