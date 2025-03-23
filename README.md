@@ -14,7 +14,7 @@ My [code](ESP32BleKeyboardBox/ESP32BleKeyboardBox.ino) and this page is licensed
 ### External code
 
 Libraries from Arduino Library Manager:
-- FastLed (3.9.14, MIT License)
+- FastLed (3.9.14, MIT license)
   - Copyright (c) 2013 FastLED, Daniel Garcia
 - IRremote (4.4.1, MIT license)
   - Initially coded 2009 Ken Shirriff http://www.righto.com
@@ -22,7 +22,7 @@ Libraries from Arduino Library Manager:
   - Copyright (c) 2020-2024 Armin Joachimsmeyer
 
 Libraries from GitHub:
-- [BleKeyboard](https://github.com/T-vK/ESP32-BLE-Keyboard) (0.3.0, I use a modified BleKeyboard.cpp, see https://github.com/T-vK/ESP32-BLE-Keyboard/issues/312)
+- [BleKeyboard](https://github.com/T-vK/ESP32-BLE-Keyboard) (0.3.2, I use a modified BleKeyboard.cpp, see https://github.com/T-vK/ESP32-BLE-Keyboard/issues/312)
   - by T-vK (Credits to chegewara, authors of the USB keyboard library, duke2421)
 
 ## Hardware
@@ -30,7 +30,7 @@ Libraries from GitHub:
 - IR-Receiver VS1838B
 - 3.7V 3500mA Li-Ion battery with a TC4056 as loader and protection
 - Passive buzzer for simple audio signals
-- HT7333 voltage Regulator
+- HT7333 voltage regulator
 - WS2812B (3x RGB-LEDs, only one is used currently)
 - One red momentary push button
 - Power on/off switch

@@ -1,21 +1,69 @@
+/*
+ * Project: ESP32BleKeyboardBox (Ding26)
+ * Description:
+ * An ESP32 based, DIY, battery driven, wireless remote control to send key presses
+ * (for example "print screen", "volume up"...) to a Windows or Android device via
+ * BLE. The trigger for the sent key press can be a physical push button or an IR signal.
+ *
+ * With this device, a disabled person takes a screenshot on an Android tablet
+ * by pressing the red button.
+ *
+ * License: CC0
+ * Copyright (c) 2025 codingABI
+ * For details see: License.txt
+ *
+ * created by codingABI https://github.com/codingABI/ESP32BleKeyboardBox
+ *
+ * Used Arduino IDE boards and libraries:
+ * - Board: Arduino-esp32, 3.1.1, LGPL-2.1 license, espressif
+ * - Libraries from Arduino Library Manager:
+ *   - FastLed (3.9.14, MIT license)
+ *     - Copyright (c) 2013 FastLED, Daniel Garcia
+ *   - IRremote (4.4.1, MIT license)
+ *     - Initially coded 2009 Ken Shirriff http://www.righto.com
+ *     - Copyright (c) 2016-2017 Rafi Khan https://rafikhan.io
+ *     - Copyright (c) 2020-2024 Armin Joachimsmeyer
+ * Libraries from GitHub:
+ *   - BleKeyboard, https://github.com/T-vK/ESP32-BLE-Keyboard, 0.3.2
+ *     (I use a modified BleKeyboard.cpp, see https://github.com/T-vK/ESP32-BLE-Keyboard/issues/312
+ *     - by T-vK (Credits to chegewara, authors of the USB keyboard library, duke2421)
+ *
+ * Hardware:
+ * - ESP-WROOM-32 (Board: NodeMCU DevKitV1, 30 pins)
+ * - IR-Receiver VS1838B
+ * - 3.7V 3500mA Li-Ion battery with a TC4056 as loader and protection
+ * - Passive buzzer for simple audio signals
+ * - HT7333 voltage regulator
+ * - WS2812B (3x RGB-LEDs, only one is used currently)
+ * - One red momentary push button
+ * - Power on/off switch
+ *
+ * History:
+ * 20250323, Initial version
+ *
+ */
 
+// Include and definitions for the RTC WDT
 #include <rtc_wdt.h>
 #define RTCWDTTIMEOUTMS 60000 // WDT timeout
 
-// I use a modified BleKeyboard.cpp, see https://github.com/T-vK/ESP32-BLE-Keyboard/issues/312
+/* ESP32-BLE-Keyboard
+ * I use a modified BleKeyboard.cpp,
+ * see https://github.com/T-vK/ESP32-BLE-Keyboard/issues/312
+ */
 #include <BleKeyboard.h>
 BleKeyboard g_bleKeyboard;
 
+// FastLED for WS2812B RGB leds
 #include <FastLED.h>
 #define NUM_LEDS 3
 #define LEDDATA_PIN 23
 CRGB g_leds[NUM_LEDS]; // Array of leds
 CRGB g_lastLeds[NUM_LEDS]; // Last value for leds
-int g_vBatmV; // Current battery voltage
 
-// My IR remote control is a Sony RM-ED011
-#define DECODE_SONY
-#include <IRremote.hpp> 
+// IR receiver
+#define DECODE_SONY // My IR remote control is a Sony RM-ED011
+#include <IRremote.hpp>
 #define IRRX_PIN 4
 #define IRDEADTIMEMS 200
 
@@ -30,19 +78,20 @@ int g_vBatmV; // Current battery voltage
 // Analog input pin to measure the battery voltage
 #define VBAT_PIN 33
 
-int g_lastBatteryLevel = -1;
+int g_lastBatteryLevel = -1; // Last set BLE battery level
+int g_vBatmV; // Current battery voltage
 
-enum beepTypes // Beep types 
-{ 
-  DEFAULTBEEP, 
-  SHORTBEEP, 
-  LONGBEEP, 
-  HIGHSHORTBEEP, 
-  LASER 
+enum beepTypes // Beep types
+{
+  DEFAULTBEEP,
+  SHORTBEEP,
+  LONGBEEP,
+  HIGHSHORTBEEP,
+  LASER
 };
- 
+
 // Beep with passive buzzer
-void beep(int type=DEFAULTBEEP) 
+void beep(int type=DEFAULTBEEP)
 {
   /* I had problems with ledc (At least with arduino-esp32 3.0.5 to 3.1.1):
    * Sometimes there was not output on BUZZER_PIN (ledcAttach and ledcWrite returns true)
@@ -51,7 +100,7 @@ void beep(int type=DEFAULTBEEP)
    */
   portMUX_TYPE mutex = portMUX_INITIALIZER_UNLOCKED;
 
-  switch(type) 
+  switch(type)
   {
     case DEFAULTBEEP: // 500 Hz for 200ms
       portENTER_CRITICAL(&mutex);
@@ -110,7 +159,7 @@ void beep(int type=DEFAULTBEEP)
   delay(100);
 }
 
-// Checks low battery
+// Checks low battery (Returns true, when battery is low)
 bool isLowBattery()
 {
   return (g_vBatmV < 3000);
@@ -128,13 +177,13 @@ void showLED(bool lowBattery, bool connected)
   bool ledChanged = false;
   for (int i = 0;i < NUM_LEDS;i++)
   {
-    if (g_lastLeds[i] != g_leds[i]) 
+    if (g_lastLeds[i] != g_leds[i])
     {
       ledChanged = true;
       g_lastLeds[i] = g_leds[i];
     }
   }
-  if (ledChanged) FastLED.show();  
+  if (ledChanged) FastLED.show();
 }
 
 // Read average voltage for battery, when powered by battery (When powered by USB this is the battery loader output voltage)
@@ -186,7 +235,7 @@ byte getBatteryLevel()
   };
 
   int batteryLevel = 0;
-  for (int i=0; i < LEVELSTEPS;i++) 
+  for (int i=0; i < LEVELSTEPS;i++)
   {
     if (g_vBatmV > approxValues[i+1]) {
       batteryLevel = map(g_vBatmV, approxValues[i+1], approxValues[i], (LEVELSTEPS-i-1)*(1000/LEVELSTEPS), (LEVELSTEPS-i)*(1000/LEVELSTEPS));
@@ -217,7 +266,7 @@ void setup()
 
   // WS2812B
   FastLED.addLeds<WS2812B, LEDDATA_PIN, GRB>(g_leds, NUM_LEDS);
-  FastLED.setMaxPowerInVoltsAndMilliamps(3.3,100); // Limit current
+  FastLED.setMaxPowerInVoltsAndMilliamps(3.3,100); // Limit current to 100mA
   FastLED.setBrightness(255);
   FastLED.clear();
   for (int i = 0;i < NUM_LEDS;i++) g_lastLeds[i] = g_leds[i];
@@ -229,7 +278,7 @@ void setup()
 
   // Serial init
   Serial.begin(115200);
-  
+
   // Pin modes
   pinMode(SW1_PIN,INPUT_PULLUP);
   pinMode(VBAT_PIN,INPUT);
@@ -238,28 +287,29 @@ void setup()
   IrReceiver.begin(IRRX_PIN);
 
   // BLE
-  Serial.println("Starting BLE work!");
+  Serial.println("Starting BLE");
   g_bleKeyboard.setName("JuliaD26");
   g_bleKeyboard.begin();
 }
 
 void loop()
 {
-  static unsigned long lastSwitchMS = 0; 
+  static unsigned long lastSwitchMS = 0;
   static unsigned long lastIRSignalMS = 0;
   static bool isBLEConnected = false;
 
+  // Update global variable with current battery voltage
   updateVbat();
 
   // Check BLE connection change
-  if (g_bleKeyboard.isConnected() != isBLEConnected) 
+  if (g_bleKeyboard.isConnected() != isBLEConnected)
   {
     isBLEConnected = g_bleKeyboard.isConnected();
     Serial.print("BLE changed: ");
-    if (isBLEConnected) // New connection 
+    if (isBLEConnected) // New connection
     {
       Serial.println("connected");
-      beep(HIGHSHORTBEEP); 
+      beep(HIGHSHORTBEEP);
     } else { // Disconneced
       Serial.println("disconnected");
       beep();
@@ -268,13 +318,13 @@ void loop()
   showLED(isLowBattery(),g_bleKeyboard.isConnected());
 
   // Check IR signals
-  if (IrReceiver.decode()) 
+  if (IrReceiver.decode())
   {
     IrReceiver.resume(); // Enable receiving of the next value
     if (millis()-lastIRSignalMS > IRDEADTIMEMS) // Debounce
     {
       word received = (IrReceiver.decodedIRData.address << 8) + IrReceiver.decodedIRData.command;
-      switch (received) 
+      switch (received)
       {
         case 0x0112: // >> Volume up
           Serial.println("IR volume up received");
@@ -286,14 +336,14 @@ void loop()
           break;
         default:
           Serial.print("Unknown IR received 0x");
-          Serial.println(received,HEX);      
+          Serial.println(received,HEX);
       }
       lastIRSignalMS = millis();
     }
-  }  
+  }
 
   // Check momentary switch buttons
-  if(g_bleKeyboard.isConnected()) 
+  if(g_bleKeyboard.isConnected())
   {
     if (digitalRead(SW1_PIN)==LOW) {
       if (millis()-lastSwitchMS > SWITCHDEBOUCETIMEMS) { // Debounce
@@ -311,5 +361,5 @@ void loop()
     g_lastBatteryLevel = currentBatteryLevel;
   }
 
-  rtc_wdt_feed(); // Reset WDT  
+  rtc_wdt_feed(); // Reset WDT
 }
