@@ -2,7 +2,7 @@
 
 An ESP32 based, DIY, battery driven, wireless remote control to send key presses (for example "print screen", "volume up"...) to a Windows or Android device via BLE. The trigger for the sent key press can be a physical push button or an IR signal. 
 
-With this device, a disabled person takes a screenshot on an Android tablet by pressing the red button.
+With this device, a disabled person takes screenshots on an Android tablet by pressing the red button.
 
 ![Outer](assets/images/Outer.png)
 
